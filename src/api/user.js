@@ -1,21 +1,20 @@
 import request from '@/utils/axiosReq'
 
-export function loginReq(data) {
+export function loginReq() {
   return request({
-    url: '/ty-user/user/loginValid',
-    data,
-    method: 'post',
-    bfLoading: false,
-    isParams: true,
-    isAlertErrorMsg: false
+    url: '/api/v1/sina-index',
+    method: 'GET',
+    // bfLoading: false,
+    // isParams: true
+    isAlertErrorMsg: true
   })
 }
 
-export function getInfoReq() {
+export function checkLoginStatus() {
   return request({
-    url: '/ty-user/user/getUserInfo',
+    url: '/api/v1/check-login',
     bfLoading: false,
-    method: 'post'
+    method: 'get'
   })
 }
 

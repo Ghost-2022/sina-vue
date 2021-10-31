@@ -14,7 +14,7 @@ service.interceptors.request.use(
   (request) => {
     // console.log('request', request)
     // token配置
-    request.headers['AUTHORIZE_TOKEN'] = getToken()
+    // request.headers['AUTHORIZE_TOKEN'] = getToken()
     /* 下载文件*/
     if (request.isDownLoadFile) {
       request.responseType = 'blob'
@@ -47,7 +47,6 @@ service.interceptors.request.use(
 // 响应拦截
 service.interceptors.response.use(
   (res) => {
-    console.log('res', res)
     if (requestData.afHLoading && loadingE) {
       loadingE.close()
     }
@@ -55,21 +54,17 @@ service.interceptors.response.use(
     if (requestData.isDownLoadFile) {
       return res.data
     }
-    const { flag, msg, code, isNeedUpdateToken, updateToken } = res.data
-    //更新token保持登录状态
-    if (isNeedUpdateToken) {
-      setToken(updateToken)
-    }
-    if (flag || code === 0) {
+    const { is_succ, error_msg } = res.data
+    if (is_succ) {
       return res.data
     } else {
       if (requestData.isAlertErrorMsg) {
         ElMessage({
-          message: msg,
+          message: error_msg,
           type: 'error',
           duration: 2 * 1000
         })
-        return Promise.reject(msg)
+        return Promise.reject(error_msg)
       } else {
         return res.data
       }
