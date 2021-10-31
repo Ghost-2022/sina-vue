@@ -1,4 +1,4 @@
-import { loginReq, logoutReq, getInfoReq } from '@/api/user'
+import { loginReq, logoutReq } from '@/api/user'
 import { setToken, removeToken } from '@/utils/auth'
 
 const getDefaultState = () => {
@@ -31,10 +31,8 @@ const actions = {
     return new Promise((resolve, reject) => {
       loginReq(data)
         .then((res) => {
-          if (res.code === 20000) {
-            //commit('SET_Token', res.data?.jwtToken)
-            setToken(res.data?.jwtToken)
-            resolve()
+          if (res.is_succ) {
+            resolve(res.data)
           } else {
             reject(res)
           }
@@ -44,35 +42,7 @@ const actions = {
         })
     })
   },
-  // get user info
-  getInfo({ commit }) {
-    return new Promise((resolve, reject) => {
-      getInfoReq()
-        .then((response) => {
-          const { data } = response
-          if (!data) {
-            return reject('Verification failed, please Login again.')
-          }
-          //此处模拟数据
-          const rolesArr = localStorage.getItem('roles')
-          if (rolesArr) {
-            data.roles = JSON.parse(rolesArr)
-          } else {
-            data.roles = ['admin']
-            localStorage.setItem('roles', JSON.stringify(data.roles))
-          }
-          const { roles, username } = data
-          commit('M_username', username)
-          commit('M_roles', roles)
-          // commit('SET_AVATAR', avatar)
-          resolve(data)
-        })
-        .catch((error) => {
-          reject(error)
-        })
-    })
-  },
-  // user logout
+
   logout() {
     return new Promise((resolve, reject) => {
       logoutReq()
