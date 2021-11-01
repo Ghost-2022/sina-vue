@@ -147,7 +147,7 @@ const searchBtnClick = () => {
             clearInterval(timer)
           }
         })
-      }, 1000 * 2)
+      }, 1000 * 60 * 2)
     }
   })
 }
