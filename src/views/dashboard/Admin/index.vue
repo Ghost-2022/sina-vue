@@ -124,6 +124,7 @@ const searchBtnClick = () => {
   Object.keys(data).forEach((fItem) => {
     if (data[fItem] === '' || data[fItem] === null || data[fItem] === undefined) delete data[fItem]
   })
+  ElMessage({ message: '开始下载', type: 'success' })
   proxy.$axiosReq(reqConfig).then((resData) => {
     let { isDownloading, searchId } = resData.data
     if (isDownloading) {
@@ -133,7 +134,6 @@ const searchBtnClick = () => {
           if (checkParams[fItem] === '' || checkParams[fItem] === null || checkParams[fItem] === undefined)
             delete data[fItem]
         })
-        console.log(checkParams, 333)
         let reqConfig = {
           url: '/api/v1/check-spider',
           method: 'get',

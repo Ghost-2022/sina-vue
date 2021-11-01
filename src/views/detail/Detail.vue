@@ -314,7 +314,7 @@ const initPieS = () => {
         name: '情感分析',
         type: 'pie',
         radius: '50%',
-        data: articleEmotionValues.value,
+        data: commentEmotionValues.value,
         emphasis: {
           itemStyle: {
             shadowBlur: 10,
