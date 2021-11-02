@@ -19,7 +19,7 @@
         />
       </el-form-item>
       <!--查询按钮-->
-      <el-button @click="searchBtnClick">查询</el-button>
+      <el-button :loading='loading' @click="searchBtnClick">查询</el-button>
     </el-form>
   </div>
   <!--表格和分页-->
@@ -70,6 +70,7 @@ let searchFormMixin = reactive({
   createTime: '',
   id: ''
 })
+let loading = ref(false)
 let selectPageReq = () => {
   const data = Object.assign(reactive({}), {
     page: pageNum,
@@ -125,6 +126,7 @@ const searchBtnClick = () => {
     if (data[fItem] === '' || data[fItem] === null || data[fItem] === undefined) delete data[fItem]
   })
   ElMessage({ message: '开始下载', type: 'success' })
+  loading.value = true
   proxy.$axiosReq(reqConfig).then((resData) => {
     let { isDownloading, searchId } = resData.data
     if (isDownloading) {
@@ -144,11 +146,14 @@ const searchBtnClick = () => {
           let { status } = resData.data
           if (status) {
             ElMessage({ message: '下载完成', type: 'success' })
+            loading.value = false
             clearInterval(timer)
           }
         })
       }, 1000 * 60 * 2)
     }
+  }).catch(error => {
+    loading.value = false
   })
 }
 
