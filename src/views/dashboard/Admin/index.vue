@@ -127,34 +127,37 @@ const searchBtnClick = () => {
   })
   ElMessage({ message: '开始下载', type: 'success' })
   loading.value = true
-  proxy.$axiosReq(reqConfig).then((resData) => {
-    let { isDownloading, searchId } = resData.data
-    if (isDownloading) {
-      timer = setInterval(() => {
-        const checkParams = Object.assign(reactive({}), { searchId: searchId })
-        Object.keys(checkParams).forEach((fItem) => {
-          if (checkParams[fItem] === '' || checkParams[fItem] === null || checkParams[fItem] === undefined)
-            delete data[fItem]
-        })
-        let reqConfig = {
-          url: '/api/v1/check-spider',
-          method: 'get',
-          data: checkParams,
-          isParams: true
-        }
-        proxy.$axiosReq(reqConfig).then((resData) => {
-          let { status } = resData.data
-          if (status) {
-            ElMessage({ message: '下载完成', type: 'success' })
-            loading.value = false
-            clearInterval(timer)
+  proxy
+    .$axiosReq(reqConfig)
+    .then((resData) => {
+      let { isDownloading, searchId } = resData.data
+      if (isDownloading) {
+        timer = setInterval(() => {
+          const checkParams = Object.assign(reactive({}), { searchId: searchId })
+          Object.keys(checkParams).forEach((fItem) => {
+            if (checkParams[fItem] === '' || checkParams[fItem] === null || checkParams[fItem] === undefined)
+              delete data[fItem]
+          })
+          let reqConfig = {
+            url: '/api/v1/check-spider',
+            method: 'get',
+            data: checkParams,
+            isParams: true
           }
-        })
-      }, 1000 * 60 * 2)
-    }
-  }).catch(error => {
-    loading.value = false
-  })
+          proxy.$axiosReq(reqConfig).then((resData) => {
+            let { status } = resData.data
+            if (status) {
+              ElMessage({ message: '下载完成', type: 'success' })
+              loading.value = false
+              clearInterval(timer)
+            }
+          })
+        }, 1000 * 60 * 2)
+      }
+    })
+    .catch((error) => {
+      loading.value = false
+    })
 }
 
 let detailClick = (row) => {
