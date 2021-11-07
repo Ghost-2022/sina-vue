@@ -1,12 +1,20 @@
 import request from '@/utils/axiosReq'
 
-export function loginReq() {
+export function loginReq(data) {
   return request({
-    url: '/api/v1/sina-index',
-    method: 'GET',
+    url: '/api/v1/get-token',
+    data: data,
+    method: 'post',
     // bfLoading: false,
     // isParams: true
     isAlertErrorMsg: true
+  })
+}
+
+export function getQRCordUrl() {
+  return request({
+    url: '/api/v1/qr-cord-url',
+    method: 'get'
   })
 }
 

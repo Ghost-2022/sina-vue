@@ -14,7 +14,7 @@ service.interceptors.request.use(
   (request) => {
     // console.log('request', request)
     // token配置
-    // request.headers['AUTHORIZE_TOKEN'] = getToken()
+    request.headers['Authorization'] = 'Bearer ' + getToken()
     /* 下载文件*/
     if (request.isDownLoadFile) {
       request.responseType = 'blob'

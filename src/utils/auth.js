@@ -1,13 +1,13 @@
 import Cookies from 'js-cookie'
 
-const TokenKey = 'User-Token'
+const TokenKey = 'token'
 
 export function getToken() {
   return Cookies.get(TokenKey)
 }
 
 export function setToken(token) {
-  return Cookies.set(TokenKey, token)
+  return Cookies.set(TokenKey, token, { expires: new Date(new Date().getTime() + 24 * 60 * 60 * 1000) })
 }
 
 export function removeToken() {
