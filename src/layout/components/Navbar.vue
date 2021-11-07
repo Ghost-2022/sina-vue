@@ -10,11 +10,8 @@
       <breadcrumb class="breadcrumb-container" />
     </div>
     <!--nav title-->
-    <div class="heardCenterTitle" v-if="settings.showTitle">{{ settings.showTitle }}</div>
+    <div class="heardCenterTitle" v-if="settings.showTitle">{{ settings.title }}</div>
     <div class="right-menu rowSC" v-if="settings.ShowDropDown">
-      <Screenfull />
-      <SizeSelect />
-      <LangSelect />
       <el-dropdown trigger="click" size="medium">
         <div class="avatar-wrapper">
           <img
@@ -25,17 +22,8 @@
         </div>
         <template #dropdown>
           <el-dropdown-menu>
-            <router-link to="/">
-              <el-dropdown-item>Home</el-dropdown-item>
-            </router-link>
-            <a target="_blank" href="https://github.com/jzfai/vue3-admin-template">
-              <el-dropdown-item>Github</el-dropdown-item>
-            </a>
-            <a target="_blank" href="https://github.com/jzfai/vue3-admin-template">
-              <el-dropdown-item>Docs</el-dropdown-item>
-            </a>
             <!--<el-dropdown-item>修改密码</el-dropdown-item>-->
-            <el-dropdown-item divided @click="loginOut">login out</el-dropdown-item>
+            <el-dropdown-item divided @click="loginOut">退出</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>

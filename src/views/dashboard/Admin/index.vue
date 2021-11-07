@@ -19,7 +19,7 @@
         />
       </el-form-item>
       <!--查询按钮-->
-      <el-button :loading='loading' @click="searchBtnClick">查询</el-button>
+      <el-button :loading="loading" @click="searchBtnClick">查询</el-button>
     </el-form>
   </div>
   <!--表格和分页-->
@@ -29,7 +29,7 @@
     :height="`calc(100vh - ${settings.delWindowHeight})`"
     size="mini"
     border
-    :data="usertableData"
+    :data="tableData"
   >
     <el-table-column type="selection" align="center" width="50" />
     <el-table-column align="center" prop="keyword" label="关键字" />
@@ -63,7 +63,7 @@ import settings from '@/settings'
 let { proxy } = getCurrentInstance()
 import bus from '@/utils/bus'
 /*表格查询和筛选*/
-let usertableData = ref([])
+let tableData = ref([])
 let searchFormMixin = reactive({
   keyword: '',
   startTime: '',
@@ -87,7 +87,7 @@ let selectPageReq = () => {
     isAlertErrorMsg: false
   }
   proxy.$axiosReq(reqConfig).then((resData) => {
-    usertableData.value = resData.data?.list
+    tableData.value = resData.data?.list
     proxy.pageTotalMixin = resData.data?.total
   })
 }

@@ -1,5 +1,5 @@
 const setting = {
-  title: '登录',
+  title: '新疆地震局微博舆情分析平台',
   /**
    * @type {boolean} true | false
    * @description Whether fix the header
@@ -14,7 +14,7 @@ const setting = {
    * @type {boolean} true | false
    * @description Whether show the title in Navbar
    */
-  showTitle: false,
+  showTitle: true,
   /**
    * @type {boolean} true | false
    * @description Whether show the settings right-panel

@@ -19,7 +19,7 @@
       </el-form-item>
     </el-form>
   </div>
-  <el-row style="min-width: 1100px" justify="center">
+  <el-row style="min-width: 1100px; text-align: center" justify="center">
     <el-col :span="12">
       <div id="echartsContainerLineF" style="width: 550px; height: 400px"></div>
     </el-col>
@@ -123,12 +123,8 @@ let selectPageReq = async () => {
       commentCountsKeys.value.push(elem.word)
       commentCountsValues.value.push(elem.count)
     })
-    Object.keys(articleEmotion).forEach((elem) => {
-      articleEmotionValues.value.push({ name: elem, value: articleEmotion[elem] })
-    })
-    Object.keys(commentEmotion).forEach((elem) => {
-      commentEmotionValues.value.push({ name: elem, value: commentEmotion[elem] })
-    })
+    articleEmotionValues.value = articleEmotion
+    commentEmotionValues.value = commentEmotion
     articleCloudUrl.value = import.meta.env.VITE_APP_BASE_URL + articleCloud
     commentCouldUrl.value = import.meta.env.VITE_APP_BASE_URL + commentCloud
     initEchartsF()
@@ -146,7 +142,8 @@ const initEchartsF = () => {
   echartsInstanceF.value = echarts.init(document.getElementById('echartsContainerLineF'))
   let option = {
     title: {
-      text: '博文数量'
+      text: '博文数量',
+      left: 'center'
       // subtext: '纯属虚构'
     },
     tooltip: {
@@ -202,7 +199,8 @@ const initEchartsS = () => {
   echartsInstanceS.value = echarts.init(document.getElementById('echartsContainerLineS'))
   let option = {
     title: {
-      text: '评论数量'
+      text: '评论数量',
+      left: 'center'
       // subtext: '纯属虚构'
     },
     tooltip: {
@@ -333,7 +331,8 @@ const initBarF = () => {
   echartsBarF.value = echarts.init(document.getElementById('echartsContainerBarF'))
   let option = {
     title: {
-      text: '词频-博文'
+      text: '词频-博文',
+      left: 'center'
       // subtext: '纯属虚构'
     },
     tooltip: {
@@ -379,7 +378,8 @@ const initBarS = () => {
   echartsBarS.value = echarts.init(document.getElementById('echartsContainerBarS'))
   let option = {
     title: {
-      text: '词频-博文'
+      text: '词频-评论',
+      left: 'center'
       // subtext: '纯属虚构'
     },
     tooltip: {
@@ -431,11 +431,12 @@ onMounted(() => {
 
 <style scoped>
 .demonstration {
-  color: #606266;
+  color: #333;
   display: block;
-  font-size: 14px;
+  font-size: 18px;
   margin-bottom: 20px;
   width: 100%;
   text-align: center;
+  font-weight: bold;
 }
 </style>
