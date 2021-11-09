@@ -44,19 +44,21 @@
     </el-col>
   </el-row>
   <el-row style="min-width: 1200px; min-height: 450px" justify="center">
-    <el-col :span="12">
+    <el-col v-if="articleCloudUrl" :span="12">
       <div style="width: 550px; height: 400px">
         <span class="demonstration">词云-博文</span>
         <el-image style="width: 100%; height: 100%" :src="articleCloudUrl" fit="scale-down"></el-image>
       </div>
     </el-col>
-    <el-col :span="12">
+    <el-col v-if="commentCouldUrl" :span="12">
       <div style="width: 550px; height: 400px">
         <span class="demonstration">词云-评论</span>
         <el-image style="width: 100%; height: 100%" :src="commentCouldUrl" fit="scale-down"></el-image>
       </div>
     </el-col>
   </el-row>
+
+
 </template>
 
 <script setup>
@@ -75,8 +77,8 @@ let commentDataKeys = ref([])
 let commentDataValues = ref([])
 let articleEmotionValues = ref([])
 let commentEmotionValues = ref([])
-let articleCloudUrl = ref()
-let commentCouldUrl = ref()
+let articleCloudUrl = ref('')
+let commentCouldUrl = ref('')
 let commentCountsKeys = ref([])
 let commentCountsValues = ref([])
 let articleCountsKeys = ref([])

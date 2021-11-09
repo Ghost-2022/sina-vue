@@ -18,7 +18,7 @@ export function getQRCordUrl() {
   })
 }
 
-export function checkLoginStatus() {
+export function checkSinaLoginStatus() {
   return request({
     url: '/api/v1/check-login',
     bfLoading: false,
