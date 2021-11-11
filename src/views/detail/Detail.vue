@@ -17,6 +17,7 @@
           end-placeholder="结束日期"
         />
       </el-form-item>
+      <el-button plain @click='exportDetail'>导出</el-button>
     </el-form>
   </div>
   <el-row style="min-width: 1100px; text-align: center" justify="center">
@@ -33,6 +34,14 @@
     </el-col>
     <el-col :span="12">
       <div id="echartsContainerPieS" style="width: 550px; height: 400px"></div>
+    </el-col>
+  </el-row>
+  <el-row style="min-width: 1200px" justify="center">
+    <el-col :span="12">
+      <div id="echartsArticlePieF" style="width: 550px; height: 400px"></div>
+    </el-col>
+    <el-col :span="12">
+      <div id="echartsCommentPieS" style="width: 550px; height: 400px"></div>
     </el-col>
   </el-row>
   <el-row style="min-width: 1200px" justify="center">
@@ -83,6 +92,8 @@ let commentCountsKeys = ref([])
 let commentCountsValues = ref([])
 let articleCountsKeys = ref([])
 let articleCountsValues = ref([])
+let articleGroupValues = ref([])
+let commentGroupValues = ref([])
 
 let selectPageReq = async () => {
   const data = {
@@ -107,7 +118,9 @@ let selectPageReq = async () => {
       articleEmotion,
       commentEmotion,
       articleCloud,
-      commentCloud
+      commentCloud,
+      articleGroup,
+      commentGroup
     } = resData.data
     articleData.forEach((elem) => {
       articleDataKeys.value.push(elem.date + '点')
@@ -118,13 +131,15 @@ let selectPageReq = async () => {
       commentDataValues.value.push(elem.count)
     })
     articleCounts.forEach((elem) => {
-      articleCountsKeys.value.push(elem.word)
-      articleCountsValues.value.push(elem.count)
+      articleCountsKeys.value.push(elem.name)
+      articleCountsValues.value.push(elem.value)
     })
     commentCounts.forEach((elem) => {
-      commentCountsKeys.value.push(elem.word)
-      commentCountsValues.value.push(elem.count)
+      commentCountsKeys.value.push(elem.name)
+      commentCountsValues.value.push(elem.value)
     })
+    articleGroupValues.value = articleGroup
+    commentGroupValues.value = commentGroup
     articleEmotionValues.value = articleEmotion
     commentEmotionValues.value = commentEmotion
     articleCloudUrl.value = import.meta.env.VITE_APP_BASE_URL + articleCloud
@@ -133,6 +148,8 @@ let selectPageReq = async () => {
     initEchartsS()
     initPieF()
     initPieS()
+    initArticlePieF()
+    initCommentPieS()
     initBarF()
     initBarS()
   })
@@ -157,7 +174,7 @@ const initEchartsF = () => {
     toolbox: {
       show: true,
       feature: {
-        saveAsImage: {}
+        dataView: { show: true, readOnly: true },
       }
     },
     xAxis: {
@@ -214,7 +231,7 @@ const initEchartsS = () => {
     toolbox: {
       show: true,
       feature: {
-        saveAsImage: {}
+        dataView: { show: true, readOnly: true },
       }
     },
     xAxis: {
@@ -328,6 +345,75 @@ const initPieS = () => {
   echartsPieS.value.setOption(option)
 }
 
+let echartsArticlePieF = ref(null)
+const initArticlePieF = () => {
+  echartsArticlePieF.value = echarts.init(document.getElementById('echartsArticlePieF'))
+  let option = {
+    title: {
+      text: '分类统计-博文',
+      // subtext: '纯属虚构',
+      left: 'center'
+    },
+    tooltip: {
+      trigger: 'item'
+    },
+    legend: {
+      orient: 'vertical',
+      left: 'left'
+    },
+    series: [
+      {
+        name: '分类统计-博文',
+        type: 'pie',
+        radius: '50%',
+        data: articleGroupValues.value,
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          }
+        }
+      }
+    ]
+  }
+  echartsArticlePieF.value.setOption(option)
+}
+let echartsCommentPieS = ref(null)
+const initCommentPieS = () => {
+  echartsCommentPieS.value = echarts.init(document.getElementById('echartsCommentPieS'))
+  let option = {
+    title: {
+      text: '分类统计-评论',
+      // subtext: '纯属虚构',
+      left: 'center'
+    },
+    tooltip: {
+      trigger: 'item'
+    },
+    legend: {
+      orient: 'vertical',
+      left: 'left'
+    },
+    series: [
+      {
+        name: '分类统计-评论',
+        type: 'pie',
+        radius: '50%',
+        data: commentGroupValues.value,
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          }
+        }
+      }
+    ]
+  }
+  echartsCommentPieS.value.setOption(option)
+}
+
 let echartsBarF = ref(null)
 const initBarF = () => {
   echartsBarF.value = echarts.init(document.getElementById('echartsContainerBarF'))
@@ -349,8 +435,7 @@ const initBarF = () => {
     toolbox: {
       show: true,
       feature: {
-        dataView: { show: true, readOnly: false },
-        saveAsImage: { show: true }
+        dataView: { show: true, readOnly: true },
       }
     },
     calculable: true,
@@ -396,8 +481,7 @@ const initBarS = () => {
     toolbox: {
       show: true,
       feature: {
-        dataView: { show: true, readOnly: false },
-        saveAsImage: { show: true }
+        dataView: { show: true, readOnly: true },
       }
     },
     calculable: true,
@@ -423,6 +507,25 @@ const initBarS = () => {
   echartsBarS.value.setOption(option)
 }
 
+
+let exportDetail = async () => {
+  const data = {
+    searchId: id
+  }
+  Object.keys(data).forEach((fItem) => {
+    if (data[fItem] === '' || data[fItem] === null || data[fItem] === undefined) delete data[fItem]
+  })
+  let reqConfig = {
+    url: '/api/v1/sina-search',
+    method: 'get',
+    data,
+    isParams: true,
+    isAlertErrorMsg: false
+  }
+  await proxy.$axiosReq(reqConfig).then((resData) => {
+
+  })
+}
 onMounted(() => {
   selectPageReq()
   bus.on('reloadErrorPage', () => {
