@@ -32,6 +32,7 @@
     :data="tableData"
   >
     <el-table-column type="selection" align="center" width="50" />
+    <el-table-column align="center" prop="id" label="ID" />
     <el-table-column align="center" prop="keyword" label="关键字" />
     <el-table-column align="center" prop="startTime" label="开始时间" />
     <el-table-column align="center" prop="endTime" label="结束时间" />
