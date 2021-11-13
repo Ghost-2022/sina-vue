@@ -2,11 +2,11 @@
   <!--操作-->
   <div class="mr-3 rowSS" style="justify-content: center; margin-top: 15px">
     <!--条件搜索-->
-    <el-form ref="refsearchFormMixin" :inline="true" class="demo-searchFormMixin ml-2">
-      <el-form-item label-width="0px" label="" prop="keyword" label-position="left">
-        <el-input v-model="searchFormMixin.keyword" class="widthPx-150" placeholder="关键词" />
+    <el-form ref="refsearchForm" :inline="true" class="demo-searchFormMixin ml-2" :model='searchForm' :rules="formRulesMixin">
+      <el-form-item label-width="0px" label="" prop="keyword" label-position="left" :rules="formRulesMixin.isNotNull">
+        <el-input v-model="searchForm.keyword" class="widthPx-150" placeholder="关键词" />
       </el-form-item>
-      <el-form-item label-width="0px" label="" prop="createTime" label-position="left">
+      <el-form-item label-width="0px" label="" prop="createTime" label-position="left" :rules="formRulesMixin.isNotNull">
         <el-date-picker
           v-model="startEndArrMixin"
           type="datetimerange"
@@ -20,6 +20,7 @@
       </el-form-item>
       <!--查询按钮-->
       <el-button :loading="loading" @click="searchBtnClick">查询</el-button>
+      <el-button v-if='qrUrl' @click="showQrCode">展示二维码</el-button>
     </el-form>
   </div>
   <!--表格和分页-->
@@ -56,6 +57,24 @@
       @current-change="handleCurrentChange"
     />
   </div>
+  <!-- 弹窗 -->
+  <el-dialog
+    v-model="dialogVisible"
+    title="请使用微博APP扫码登录"
+    width='450px'
+    center
+  >
+    <div style='width: 400px; text-align: center'>
+      <el-image style="width: 180px; height: 180px" :src="qrUrl" fit="scale-down">
+        <template #error>
+          <div class="image-slot" style="height: inherit; background-color: #f7f5fa">
+            <i class="el-icon-picture-outline" style="vertical-align: middle"></i>
+            <p>扫码登录</p>
+          </div>
+        </template>
+      </el-image>
+    </div>
+  </el-dialog>
 </template>
 
 <script setup>
@@ -65,7 +84,7 @@ let { proxy } = getCurrentInstance()
 import bus from '@/utils/bus'
 /*表格查询和筛选*/
 let tableData = ref([])
-let searchFormMixin = reactive({
+let searchForm = reactive({
   keyword: '',
   startTime: '',
   createTime: '',
@@ -95,15 +114,120 @@ let selectPageReq = () => {
 
 import tablePageHook from '@/hooks/tablePageHook'
 import { ElMessage } from 'element-plus'
+import { checkSinaLoginStatus } from '@/api/user'
 let { pageNum, pageSize, handleCurrentChange, handleSizeChange } = tablePageHook(selectPageReq)
 const dateTimePacking = (timeArr) => {
   if (timeArr && timeArr.length === 2) {
-    searchFormMixin.startTime = timeArr[0]
-    searchFormMixin.endTime = timeArr[1]
+    searchForm.startTime = timeArr[0]
+    searchForm.endTime = timeArr[1]
   } else {
-    searchFormMixin.startTime = ''
-    searchFormMixin.endTime = ''
+    searchForm.startTime = ''
+    searchForm.endTime = ''
   }
+}
+
+let timer = null
+let dialogVisible = ref(false)
+let qrUrl = ref('')
+let loginStatus = ref(false)
+
+const checkSinaLogin = async () => {
+  let reqConfig = {
+    url: '/api/v1/qr-cord-url',
+    method: 'get',
+    isAlertErrorMsg: true
+  }
+  await proxy.$axiosReq(reqConfig).then((resp) => {
+    const { isLogin, image } = resp.data
+    if (!isLogin) {
+      ElMessage({ message: '请扫码登录', type: 'warning' })
+      dialogVisible.value = true
+      qrUrl.value = image
+      timer = setInterval(() => {
+        checkSinaLoginStatus()
+          .then((resp) => {
+            const { isLogin } = resp.data
+            if (isLogin) {
+              clearInterval(timer)
+              ElMessage({ message: '登录成功', type: 'success' })
+              dialogVisible.value = false
+            }
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+      }, 5000)
+    }else {
+      loginStatus.value = true
+    }
+  })
+}
+
+const checkDownloadStatus = (searchId) => {
+  timer = setInterval(() => {
+    const checkParams = Object.assign(reactive({}), { searchId: searchId })
+    Object.keys(checkParams).forEach((fItem) => {
+      if (checkParams[fItem] === '' || checkParams[fItem] === null || checkParams[fItem] === undefined)
+        delete checkParams[fItem]
+    })
+    let reqConfig = {
+      url: '/api/v1/check-spider',
+      method: 'get',
+      data: checkParams,
+      isParams: true
+    }
+    proxy.$axiosReq(reqConfig).then((resData) => {
+      let { status } = resData.data
+      if (status) {
+        ElMessage({ message: '下载完成', type: 'success' })
+        loading.value = false
+        clearInterval(timer)
+      }
+    })
+  }, 1000 * 60 * 2)
+}
+
+const searchBtnClick = () => {
+  if (!loginStatus.value){
+    checkSinaLogin()
+  }
+  if (loginStatus.value) {
+    const data = Object.assign(searchForm, {})
+    let reqConfig = {
+      url: '/api/v1/sina-search',
+      method: 'post',
+      data,
+      isParams: false,
+      bfLoading: false,
+      isAlertErrorMsg: true
+    }
+    Object.keys(data).forEach((fItem) => {
+      if (data[fItem] === '' || data[fItem] === null || data[fItem] === undefined) delete data[fItem]
+    })
+    proxy.$refs['refsearchForm'].validate((valid) => {
+      if (valid) {
+        loading.value = true
+        proxy.$axiosReq(reqConfig).then((resData) => {
+          let { isDownloading, searchId } = resData.data
+          if (isDownloading) {
+            ElMessage({ message: '开始下载', type: 'success' })
+            checkDownloadStatus(searchId)
+          }
+        })
+        loading.value = false
+      } else {
+        return false
+      }
+    })
+  }
+}
+
+let detailClick = (row) => {
+  proxy.$router.push({ name: 'Detail', query: row })
+}
+
+const showQrCode = () => {
+  dialogVisible.value = !dialogVisible.value
 }
 onMounted(() => {
   selectPageReq()
@@ -111,59 +235,6 @@ onMounted(() => {
     selectPageReq()
   })
 })
-
-let timer = null
-
-const searchBtnClick = () => {
-  const data = Object.assign(searchFormMixin, {})
-  let reqConfig = {
-    url: '/api/v1/sina-search',
-    method: 'post',
-    data,
-    isParams: false,
-    isAlertErrorMsg: true
-  }
-  Object.keys(data).forEach((fItem) => {
-    if (data[fItem] === '' || data[fItem] === null || data[fItem] === undefined) delete data[fItem]
-  })
-  ElMessage({ message: '开始下载', type: 'success' })
-  loading.value = true
-  proxy
-    .$axiosReq(reqConfig)
-    .then((resData) => {
-      let { isDownloading, searchId } = resData.data
-      if (isDownloading) {
-        timer = setInterval(() => {
-          const checkParams = Object.assign(reactive({}), { searchId: searchId })
-          Object.keys(checkParams).forEach((fItem) => {
-            if (checkParams[fItem] === '' || checkParams[fItem] === null || checkParams[fItem] === undefined)
-              delete data[fItem]
-          })
-          let reqConfig = {
-            url: '/api/v1/check-spider',
-            method: 'get',
-            data: checkParams,
-            isParams: true
-          }
-          proxy.$axiosReq(reqConfig).then((resData) => {
-            let { status } = resData.data
-            if (status) {
-              ElMessage({ message: '下载完成', type: 'success' })
-              loading.value = false
-              clearInterval(timer)
-            }
-          })
-        }, 1000 * 60 * 2)
-      }
-    })
-    .catch((error) => {
-      loading.value = false
-    })
-}
-
-let detailClick = (row) => {
-  proxy.$router.push({ name: 'Detail', query: row })
-}
 </script>
 
 <style lang="scss" scoped>
