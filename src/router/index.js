@@ -52,7 +52,7 @@ export const constantRoutes = [
         path: '',
         component: () => import('@/views/detail/Detail'),
         name: 'Detail',
-        meta: { title: '详情', icon: 'bug' }
+        meta: { title: '智能分析', icon: 'bug' }
       }
     ]
   }

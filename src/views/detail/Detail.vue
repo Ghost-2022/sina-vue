@@ -17,9 +17,11 @@
           end-placeholder="结束日期"
         />
       </el-form-item>
+      <el-button plain @click="exportArticle('article')">导出文章</el-button>
+      <el-button plain @click="exportArticle('comment')">导出评论</el-button>
     </el-form>
   </div>
-  <el-row style="min-width: 1100px" justify="center">
+  <el-row style="min-width: 1100px; text-align: center" justify="center">
     <el-col :span="12">
       <div id="echartsContainerLineF" style="width: 550px; height: 400px"></div>
     </el-col>
@@ -37,6 +39,14 @@
   </el-row>
   <el-row style="min-width: 1200px" justify="center">
     <el-col :span="12">
+      <div id="echartsArticlePieF" style="width: 550px; height: 400px"></div>
+    </el-col>
+    <el-col :span="12">
+      <div id="echartsCommentPieS" style="width: 550px; height: 400px"></div>
+    </el-col>
+  </el-row>
+  <el-row style="min-width: 1200px" justify="center">
+    <el-col :span="12">
       <div id="echartsContainerBarF" style="width: 550px; height: 400px"></div>
     </el-col>
     <el-col :span="12">
@@ -44,13 +54,13 @@
     </el-col>
   </el-row>
   <el-row style="min-width: 1200px; min-height: 450px" justify="center">
-    <el-col :span="12">
+    <el-col v-if="articleCloudUrl" :span="12">
       <div style="width: 550px; height: 400px">
         <span class="demonstration">词云-博文</span>
         <el-image style="width: 100%; height: 100%" :src="articleCloudUrl" fit="scale-down"></el-image>
       </div>
     </el-col>
-    <el-col :span="12">
+    <el-col v-if="commentCouldUrl" :span="12">
       <div style="width: 550px; height: 400px">
         <span class="demonstration">词云-评论</span>
         <el-image style="width: 100%; height: 100%" :src="commentCouldUrl" fit="scale-down"></el-image>
@@ -75,12 +85,14 @@ let commentDataKeys = ref([])
 let commentDataValues = ref([])
 let articleEmotionValues = ref([])
 let commentEmotionValues = ref([])
-let articleCloudUrl = ref()
-let commentCouldUrl = ref()
+let articleCloudUrl = ref('')
+let commentCouldUrl = ref('')
 let commentCountsKeys = ref([])
 let commentCountsValues = ref([])
 let articleCountsKeys = ref([])
 let articleCountsValues = ref([])
+let articleGroupValues = ref([])
+let commentGroupValues = ref([])
 
 let selectPageReq = async () => {
   const data = {
@@ -105,7 +117,9 @@ let selectPageReq = async () => {
       articleEmotion,
       commentEmotion,
       articleCloud,
-      commentCloud
+      commentCloud,
+      articleGroup,
+      commentGroup
     } = resData.data
     articleData.forEach((elem) => {
       articleDataKeys.value.push(elem.date + '点')
@@ -116,25 +130,25 @@ let selectPageReq = async () => {
       commentDataValues.value.push(elem.count)
     })
     articleCounts.forEach((elem) => {
-      articleCountsKeys.value.push(elem.word)
-      articleCountsValues.value.push(elem.count)
+      articleCountsKeys.value.push(elem.name)
+      articleCountsValues.value.push(elem.value)
     })
     commentCounts.forEach((elem) => {
-      commentCountsKeys.value.push(elem.word)
-      commentCountsValues.value.push(elem.count)
+      commentCountsKeys.value.push(elem.name)
+      commentCountsValues.value.push(elem.value)
     })
-    Object.keys(articleEmotion).forEach((elem) => {
-      articleEmotionValues.value.push({ name: elem, value: articleEmotion[elem] })
-    })
-    Object.keys(commentEmotion).forEach((elem) => {
-      commentEmotionValues.value.push({ name: elem, value: commentEmotion[elem] })
-    })
+    articleGroupValues.value = articleGroup
+    commentGroupValues.value = commentGroup
+    articleEmotionValues.value = articleEmotion
+    commentEmotionValues.value = commentEmotion
     articleCloudUrl.value = import.meta.env.VITE_APP_BASE_URL + articleCloud
     commentCouldUrl.value = import.meta.env.VITE_APP_BASE_URL + commentCloud
     initEchartsF()
     initEchartsS()
     initPieF()
     initPieS()
+    initArticlePieF()
+    initCommentPieS()
     initBarF()
     initBarS()
   })
@@ -146,7 +160,8 @@ const initEchartsF = () => {
   echartsInstanceF.value = echarts.init(document.getElementById('echartsContainerLineF'))
   let option = {
     title: {
-      text: '博文数量'
+      text: '博文数量',
+      left: 'center'
       // subtext: '纯属虚构'
     },
     tooltip: {
@@ -158,7 +173,7 @@ const initEchartsF = () => {
     toolbox: {
       show: true,
       feature: {
-        saveAsImage: {}
+        dataView: { show: true, readOnly: true }
       }
     },
     xAxis: {
@@ -202,7 +217,8 @@ const initEchartsS = () => {
   echartsInstanceS.value = echarts.init(document.getElementById('echartsContainerLineS'))
   let option = {
     title: {
-      text: '评论数量'
+      text: '评论数量',
+      left: 'center'
       // subtext: '纯属虚构'
     },
     tooltip: {
@@ -214,7 +230,7 @@ const initEchartsS = () => {
     toolbox: {
       show: true,
       feature: {
-        saveAsImage: {}
+        dataView: { show: true, readOnly: true }
       }
     },
     xAxis: {
@@ -328,12 +344,82 @@ const initPieS = () => {
   echartsPieS.value.setOption(option)
 }
 
+let echartsArticlePieF = ref(null)
+const initArticlePieF = () => {
+  echartsArticlePieF.value = echarts.init(document.getElementById('echartsArticlePieF'))
+  let option = {
+    title: {
+      text: '分类统计-博文',
+      // subtext: '纯属虚构',
+      left: 'center'
+    },
+    tooltip: {
+      trigger: 'item'
+    },
+    legend: {
+      orient: 'vertical',
+      left: 'left'
+    },
+    series: [
+      {
+        name: '分类统计-博文',
+        type: 'pie',
+        radius: '50%',
+        data: articleGroupValues.value,
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          }
+        }
+      }
+    ]
+  }
+  echartsArticlePieF.value.setOption(option)
+}
+let echartsCommentPieS = ref(null)
+const initCommentPieS = () => {
+  echartsCommentPieS.value = echarts.init(document.getElementById('echartsCommentPieS'))
+  let option = {
+    title: {
+      text: '分类统计-评论',
+      // subtext: '纯属虚构',
+      left: 'center'
+    },
+    tooltip: {
+      trigger: 'item'
+    },
+    legend: {
+      orient: 'vertical',
+      left: 'left'
+    },
+    series: [
+      {
+        name: '分类统计-评论',
+        type: 'pie',
+        radius: '50%',
+        data: commentGroupValues.value,
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          }
+        }
+      }
+    ]
+  }
+  echartsCommentPieS.value.setOption(option)
+}
+
 let echartsBarF = ref(null)
 const initBarF = () => {
   echartsBarF.value = echarts.init(document.getElementById('echartsContainerBarF'))
   let option = {
     title: {
-      text: '词频-博文'
+      text: '词频-博文',
+      left: 'center'
       // subtext: '纯属虚构'
     },
     tooltip: {
@@ -348,8 +434,7 @@ const initBarF = () => {
     toolbox: {
       show: true,
       feature: {
-        dataView: { show: true, readOnly: false },
-        saveAsImage: { show: true }
+        dataView: { show: true, readOnly: true }
       }
     },
     calculable: true,
@@ -379,7 +464,8 @@ const initBarS = () => {
   echartsBarS.value = echarts.init(document.getElementById('echartsContainerBarS'))
   let option = {
     title: {
-      text: '词频-博文'
+      text: '词频-评论',
+      left: 'center'
       // subtext: '纯属虚构'
     },
     tooltip: {
@@ -394,8 +480,7 @@ const initBarS = () => {
     toolbox: {
       show: true,
       feature: {
-        dataView: { show: true, readOnly: false },
-        saveAsImage: { show: true }
+        dataView: { show: true, readOnly: true }
       }
     },
     calculable: true,
@@ -421,6 +506,40 @@ const initBarS = () => {
   echartsBarS.value.setOption(option)
 }
 
+let exportArticle = (fileType) => {
+  const data = {
+    searchId: id
+  }
+  Object.keys(data).forEach((fItem) => {
+    if (data[fItem] === '' || data[fItem] === null || data[fItem] === undefined) delete data[fItem]
+  })
+  let exportUrl = ''
+  if (fileType === 'article') {
+    exportUrl = '/api/v1/export-article'
+  } else {
+    exportUrl = '/api/v1/export-comment'
+  }
+
+  let reqConfig = {
+    url: exportUrl,
+    method: 'get',
+    data,
+    isParams: true,
+    isAlertErrorMsg: false
+  }
+  proxy.$axiosReq(reqConfig).then((resData) => {
+    const blob = new Blob([`\ufeff${resData}`], { type: 'charset=utf-8' })
+    const fileName = id + '-' + fileType + '.csv'
+    const down = document.createElement('a')
+    down.download = fileName
+    down.style.display = 'none' //隐藏,没必要展示出来
+    down.href = URL.createObjectURL(blob)
+    document.body.appendChild(down)
+    down.click()
+    URL.revokeObjectURL(down.href) // 释放URL 对象
+    document.body.removeChild(down) //下载完成移除
+  })
+}
 onMounted(() => {
   selectPageReq()
   bus.on('reloadErrorPage', () => {
@@ -431,11 +550,12 @@ onMounted(() => {
 
 <style scoped>
 .demonstration {
-  color: #606266;
+  color: #333;
   display: block;
-  font-size: 14px;
+  font-size: 18px;
   margin-bottom: 20px;
   width: 100%;
   text-align: center;
+  font-weight: bold;
 }
 </style>

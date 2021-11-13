@@ -1,21 +1,43 @@
 <!--suppress ALL -->
 <template>
   <div class="login-container columnCC">
-    <el-form ref="refloginForm" size="medium" class="login-form text-center" :rules="formRulesMixin">
+    <el-form ref="refloginForm" size="medium" class="login-form" :model="formInline" :rules="formRulesMixin">
       <div class="title-container">
         <h3 class="title text-center">{{ settings.title }}</h3>
       </div>
-      <el-image style="width: 180px; height: 180px" :src="qrUrl" fit="scale-down">
-        <template #error>
-          <div class="image-slot" style="height: inherit; background-color: #f7f5fa">
-            <i class="el-icon-picture-outline" style="vertical-align: middle"></i>
-            <p>扫码登录</p>
-          </div>
-        </template>
-      </el-image>
+      <el-form-item prop="username" :rules="formRulesMixin.isNotNull">
+        <div class="rowSC">
+          <span class="svg-container">
+            <svg-icon icon-class="user" />
+          </span>
+          <el-input v-model="formInline.username" placeholder="请输入用户名" />
+          <!--占位-->
+          <div class="show-pwd" />
+        </div>
+      </el-form-item>
+      <!--<el-form-item prop="password" :rules="formRulesMixin.passwordValid">-->
+      <el-form-item prop="password" :rules="formRulesMixin.isNotNull">
+        <div class="rowSC">
+          <span class="svg-container">
+            <svg-icon icon-class="password" />
+          </span>
+          <el-input
+            :key="passwordType"
+            ref="refPassword"
+            v-model="formInline.password"
+            :type="passwordType"
+            name="password"
+            @keyup.enter="handleLogin"
+            placeholder="请输入密码"
+          />
+          <span class="show-pwd" @click="showPwd">
+            <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
+          </span>
+        </div>
+      </el-form-item>
       <div class="tip-message">{{ tipMessage }}</div>
-      <el-button :loading="loading" type="primary" class="login-btn" size="medium" @click.prevent="loginReq">
-        Login
+      <el-button :loading="loading" type="primary" class="login-btn" size="medium" @click.prevent="handleLogin">
+        登录
       </el-button>
     </el-form>
   </div>
@@ -29,15 +51,18 @@ export default {
 </script>
 
 <script setup>
-import { reactive, getCurrentInstance, watch, ref, onMounted } from 'vue'
+import { reactive, getCurrentInstance, watch, ref } from 'vue'
 import settings from '@/settings'
-import { checkLoginStatus } from '@/api/user'
-import { setToken } from '@/utils/auth'
 import { useRoute } from 'vue-router'
+import { setToken } from '@/utils/auth'
 import { useStore } from 'vuex'
 import { ElMessage } from 'element-plus'
 let { proxy } = getCurrentInstance()
-
+//form
+let formInline = reactive({
+  username: '',
+  password: ''
+})
 let state = reactive({
   otherQuery: {},
   redirect: undefined
@@ -71,38 +96,27 @@ watch(
  * */
 let loading = ref(false)
 let tipMessage = ref('')
-let qrUrl = ref('')
 const store = useStore()
-let timer = setInterval(() => {
-  checkLoginStatus()
-    .then((resp) => {
-      console.log(resp)
-      const { isLogin } = resp.data
-      if (isLogin) {
-        clearInterval(timer)
-        setToken(isLogin)
-        proxy.$router.push({ path: state.redirect || '/', query: state.otherQuery })
-        ElMessage({ message: '登录成功', type: 'success' })
-      }
-    })
-    .catch((err) => {})
-}, 5000)
-
+let handleLogin = () => {
+  let refloginForm = ''
+  proxy.$refs['refloginForm'].validate((valid) => {
+    if (valid) {
+      loginReq()
+    } else {
+      return false
+    }
+  })
+}
 let loginReq = () => {
   loading.value = true
   store
-    .dispatch('user/login')
+    .dispatch('user/login', formInline)
     .then((resp) => {
-      const { isLogin } = resp
-      if (isLogin) {
-        clearInterval(timer)
-        setToken(isLogin)
-        proxy.$router.push({ path: state.redirect || '/', query: state.otherQuery })
-        ElMessage({ message: '登录成功', type: 'success' })
-      } else {
-        qrUrl.value = resp.image
-        loading.value = false
-      }
+      const { token, nickName } = resp
+      setToken(token)
+      localStorage.setItem('user', nickName)
+      ElMessage({ message: '登录成功', type: 'success' })
+      proxy.$router.push({ path: state.redirect || '/', query: state.otherQuery })
     })
     .catch((res) => {
       tipMessage.value = res.msg
@@ -111,9 +125,22 @@ let loginReq = () => {
       })
     })
 }
-onMounted(() => {
-  loginReq()
-})
+
+/*
+ *  password show or hidden
+ * */
+let passwordType = ref('password')
+const refPassword = ref(null)
+let showPwd = () => {
+  if (passwordType.value === 'password') {
+    passwordType.value = ''
+  } else {
+    passwordType.value = 'password'
+  }
+  proxy.$nextTick(() => {
+    refPassword.value.focus()
+  })
+}
 </script>
 
 <style lang="scss" scoped>
