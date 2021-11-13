@@ -189,9 +189,6 @@ const checkDownloadStatus = (searchId) => {
 }
 
 const searchBtnClick = () => {
-  // if (!loginStatus.value) {
-  //   checkSinaLogin()
-  // }
   if (loginStatus.value) {
     const data = Object.assign(searchForm, {})
     let reqConfig = {
@@ -207,8 +204,8 @@ const searchBtnClick = () => {
     })
     proxy.$refs['refsearchForm'].validate((valid) => {
       if (valid) {
-        loading.value = true
         proxy.$axiosReq(reqConfig).then((resData) => {
+          loading.value = true
           let { isDownloading, searchId } = resData.data
           if (isDownloading) {
             ElMessage({ message: '开始下载', type: 'success' })
