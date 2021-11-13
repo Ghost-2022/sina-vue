@@ -2,11 +2,17 @@
   <!--操作-->
   <div class="mr-3 rowSS" style="justify-content: center; margin-top: 15px">
     <!--条件搜索-->
-    <el-form ref="refsearchForm" :inline="true" class="demo-searchFormMixin ml-2" :model='searchForm' :rules="formRulesMixin">
+    <el-form
+      ref="refsearchForm"
+      :inline="true"
+      class="demo-searchFormMixin ml-2"
+      :model="searchForm"
+      :rules="formRulesMixin"
+    >
       <el-form-item label-width="0px" label="" prop="keyword" label-position="left" :rules="formRulesMixin.isNotNull">
         <el-input v-model="searchForm.keyword" class="widthPx-150" placeholder="关键词" />
       </el-form-item>
-      <el-form-item label-width="0px" label="" prop="createTime" label-position="left" :rules="formRulesMixin.isNotNull">
+      <el-form-item label-width="0px" label="" prop="startTime" label-position="left">
         <el-date-picker
           v-model="startEndArrMixin"
           type="datetimerange"
@@ -20,7 +26,7 @@
       </el-form-item>
       <!--查询按钮-->
       <el-button :loading="loading" @click="searchBtnClick">查询</el-button>
-      <el-button v-if='qrUrl' @click="showQrCode">展示二维码</el-button>
+      <el-button v-if="qrUrl" @click="showQrCode">展示二维码</el-button>
     </el-form>
   </div>
   <!--表格和分页-->
@@ -58,13 +64,8 @@
     />
   </div>
   <!-- 弹窗 -->
-  <el-dialog
-    v-model="dialogVisible"
-    title="请使用微博APP扫码登录"
-    width='450px'
-    center
-  >
-    <div style='width: 400px; text-align: center'>
+  <el-dialog v-model="dialogVisible" title="请使用微博APP扫码登录" width="450px" center>
+    <div style="width: 400px; text-align: center">
       <el-image style="width: 180px; height: 180px" :src="qrUrl" fit="scale-down">
         <template #error>
           <div class="image-slot" style="height: inherit; background-color: #f7f5fa">
@@ -87,7 +88,7 @@ let tableData = ref([])
 let searchForm = reactive({
   keyword: '',
   startTime: '',
-  createTime: '',
+  endTime: '',
   id: ''
 })
 let loading = ref(false)
@@ -157,7 +158,7 @@ const checkSinaLogin = async () => {
             console.log(err)
           })
       }, 5000)
-    }else {
+    } else {
       loginStatus.value = true
     }
   })
@@ -188,9 +189,9 @@ const checkDownloadStatus = (searchId) => {
 }
 
 const searchBtnClick = () => {
-  if (!loginStatus.value){
-    checkSinaLogin()
-  }
+  // if (!loginStatus.value) {
+  //   checkSinaLogin()
+  // }
   if (loginStatus.value) {
     const data = Object.assign(searchForm, {})
     let reqConfig = {
@@ -214,8 +215,8 @@ const searchBtnClick = () => {
             checkDownloadStatus(searchId)
           }
         })
-        loading.value = false
       } else {
+        console.log('校验失败')
         return false
       }
     })
@@ -234,6 +235,7 @@ onMounted(() => {
   bus.on('reloadErrorPage', () => {
     selectPageReq()
   })
+  checkSinaLogin()
 })
 </script>
 
