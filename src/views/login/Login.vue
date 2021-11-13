@@ -112,8 +112,9 @@ let loginReq = () => {
   store
     .dispatch('user/login', formInline)
     .then((resp) => {
-      const { token } = resp
+      const { token, nickName } = resp
       setToken(token)
+      localStorage.setItem('user', nickName)
       ElMessage({ message: '登录成功', type: 'success' })
       proxy.$router.push({ path: state.redirect || '/', query: state.otherQuery })
     })

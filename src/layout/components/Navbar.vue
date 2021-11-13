@@ -22,7 +22,7 @@
         </div>
         <template #dropdown>
           <el-dropdown-menu>
-            <!--<el-dropdown-item>修改密码</el-dropdown-item>-->
+            <el-dropdown-item>{{ nickName }}</el-dropdown-item>
             <el-dropdown-item divided @click="loginOut">退出</el-dropdown-item>
           </el-dropdown-menu>
         </template>
@@ -34,15 +34,11 @@
 <script setup>
 import Breadcrumb from './Breadcrumb'
 import Hamburger from './Hamburger'
-import Screenfull from '@/components/Screenfull'
-import SizeSelect from '@/components/SizeSelect'
-import LangSelect from '@/components/LangSelect'
 import { computed, getCurrentInstance } from 'vue'
 import settings from '@/settings'
-import { useStore } from 'vuex'
 import { ElMessage } from 'element-plus'
+import { removeToken } from '@/utils/auth'
 let { proxy } = getCurrentInstance()
-
 const opened = computed(() => {
   return proxy.$store.state.app.sidebar.opened
 })
@@ -50,15 +46,15 @@ const toggleSideBar = () => {
   proxy.$store.commit('app/M_toggleSideBar')
 }
 
+let nickName = localStorage.getItem('user')
+
 /*
  * 退出登录
  * */
-const store = useStore()
 const loginOut = () => {
-  store.dispatch('user/logout').then(() => {
-    ElMessage({ message: '退出登录成功', type: 'success' })
-    proxy.$router.push(`/login?redirect=${proxy.$route.fullPath}`)
-  })
+  removeToken()
+  ElMessage({ message: '退出登录成功', type: 'success' })
+  proxy.$router.push(`/login?redirect=${proxy.$route.fullPath}`)
 }
 </script>
 
