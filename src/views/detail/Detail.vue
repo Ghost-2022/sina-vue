@@ -17,7 +17,8 @@
           end-placeholder="结束日期"
         />
       </el-form-item>
-      <el-button plain @click='exportDetail'>导出</el-button>
+      <el-button plain @click="exportArticle('article')">导出文章</el-button>
+      <el-button plain @click="exportArticle('comment')">导出评论</el-button>
     </el-form>
   </div>
   <el-row style="min-width: 1100px; text-align: center" justify="center">
@@ -66,8 +67,6 @@
       </div>
     </el-col>
   </el-row>
-
-
 </template>
 
 <script setup>
@@ -174,7 +173,7 @@ const initEchartsF = () => {
     toolbox: {
       show: true,
       feature: {
-        dataView: { show: true, readOnly: true },
+        dataView: { show: true, readOnly: true }
       }
     },
     xAxis: {
@@ -231,7 +230,7 @@ const initEchartsS = () => {
     toolbox: {
       show: true,
       feature: {
-        dataView: { show: true, readOnly: true },
+        dataView: { show: true, readOnly: true }
       }
     },
     xAxis: {
@@ -435,7 +434,7 @@ const initBarF = () => {
     toolbox: {
       show: true,
       feature: {
-        dataView: { show: true, readOnly: true },
+        dataView: { show: true, readOnly: true }
       }
     },
     calculable: true,
@@ -481,7 +480,7 @@ const initBarS = () => {
     toolbox: {
       show: true,
       feature: {
-        dataView: { show: true, readOnly: true },
+        dataView: { show: true, readOnly: true }
       }
     },
     calculable: true,
@@ -507,23 +506,38 @@ const initBarS = () => {
   echartsBarS.value.setOption(option)
 }
 
-
-let exportDetail = async () => {
+let exportArticle = (fileType) => {
   const data = {
     searchId: id
   }
   Object.keys(data).forEach((fItem) => {
     if (data[fItem] === '' || data[fItem] === null || data[fItem] === undefined) delete data[fItem]
   })
+  let exportUrl = ''
+  if (fileType === 'article') {
+    exportUrl = '/api/v1/export-article'
+  } else {
+    exportUrl = '/api/v1/export-comment'
+  }
+
   let reqConfig = {
-    url: '/api/v1/sina-search',
+    url: exportUrl,
     method: 'get',
     data,
     isParams: true,
     isAlertErrorMsg: false
   }
-  await proxy.$axiosReq(reqConfig).then((resData) => {
-
+  proxy.$axiosReq(reqConfig).then((resData) => {
+    const blob = new Blob([`\ufeff${resData}`], { type: 'charset=utf-8' })
+    const fileName = id + '-' + fileType + '.csv'
+    const down = document.createElement('a')
+    down.download = fileName
+    down.style.display = 'none' //隐藏,没必要展示出来
+    down.href = URL.createObjectURL(blob)
+    document.body.appendChild(down)
+    down.click()
+    URL.revokeObjectURL(down.href) // 释放URL 对象
+    document.body.removeChild(down) //下载完成移除
   })
 }
 onMounted(() => {
