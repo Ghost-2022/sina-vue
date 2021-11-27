@@ -182,6 +182,7 @@ const checkDownloadStatus = (searchId) => {
       if (status) {
         ElMessage({ message: '下载完成', type: 'success' })
         loading.value = false
+        selectPageReq()
         clearInterval(timer)
       }
     })

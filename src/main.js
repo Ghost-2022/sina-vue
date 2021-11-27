@@ -14,7 +14,7 @@ import 'element-plus/dist/index.css'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 app.use(ElementPlus, {
   size: Cookies.get('size') || 'mini',
-  locale: Cookies.get('language') === 'zhCn' && zhCn
+  locale: zhCn
 })
 //global mixin
 import elementMixin from '@/mixins/elementMixin'

@@ -14,10 +14,7 @@
     <div class="right-menu rowSC" v-if="settings.ShowDropDown">
       <el-dropdown trigger="click" size="medium">
         <div class="avatar-wrapper">
-          <img
-            src="https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif?imageView2/1/w/80/h/80"
-            class="user-avatar"
-          />
+          <el-avatar shape="square" size="medium" :src="avatar"></el-avatar>
           <i class="el-icon-caret-bottom" />
         </div>
         <template #dropdown>
@@ -34,7 +31,7 @@
 <script setup>
 import Breadcrumb from './Breadcrumb'
 import Hamburger from './Hamburger'
-import { computed, getCurrentInstance } from 'vue'
+import { computed, getCurrentInstance, ref } from 'vue'
 import settings from '@/settings'
 import { ElMessage } from 'element-plus'
 import { removeToken } from '@/utils/auth'
@@ -47,6 +44,7 @@ const toggleSideBar = () => {
 }
 
 let nickName = localStorage.getItem('user')
+let avatar = ref(import.meta.env.VITE_APP_BASE_URL + 'static/logo.png')
 
 /*
  * 退出登录
