@@ -44,7 +44,7 @@ directive(app)
 import './permission'
 
 //error log  collection
-// import errorLog from '@/hooks/errorLogHook'
-// errorLog(app)
+import errorLog from '@/hooks/errorLogHook'
+errorLog(app)
 
 app.use(router).mount('#app')
