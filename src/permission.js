@@ -1,5 +1,4 @@
-import router, { asyncRoutes } from '@/router'
-import store from './store'
+import router from '@/router'
 import settings from './settings'
 import { getToken } from '@/utils/auth'
 import NProgress from 'nprogress'

@@ -1,5 +1,5 @@
 import { loginReq, logoutReq } from '@/api/user'
-import { setToken, removeToken } from '@/utils/auth'
+import { removeToken } from '@/utils/auth'
 
 const getDefaultState = () => {
   return {

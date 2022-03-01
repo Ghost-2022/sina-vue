@@ -1,9 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import Layout from '@/layout'
 
-/* Router Modules */
-import chartsRouter from './modules/charts'
-
 export const constantRoutes = [
   {
     path: '/redirect',
