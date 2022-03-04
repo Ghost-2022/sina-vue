@@ -52,6 +52,18 @@ export const constantRoutes = [
         meta: { title: '智能分析', icon: 'bug' }
       }
     ]
+  },
+  {
+    path: '/map',
+    component: Layout,
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/map/index'),
+        name: 'Map',
+        meta: { title: '地图展示', icon: 'bug' }
+      }
+    ]
   }
 ]
 

@@ -51,13 +51,14 @@ export default {
 </script>
 
 <script setup>
-import { reactive, getCurrentInstance, watch, ref } from 'vue'
+import { reactive, getCurrentInstance, watch, ref, onBeforeMount } from 'vue'
 import settings from '@/settings'
 import { useRoute } from 'vue-router'
 import { setToken } from '@/utils/auth'
 import { useStore } from 'vuex'
 import { ElMessage } from 'element-plus'
 let { proxy } = getCurrentInstance()
+const clientId = 2310257607
 //form
 let formInline = reactive({
   username: '',
@@ -141,6 +142,11 @@ let showPwd = () => {
     refPassword.value.focus()
   })
 }
+onBeforeMount (() =>{
+  let code = /=(\w+)\#/.exec(window.location.href)
+  if (code === null)
+    window.location.href = `https://api.weibo.com/oauth2/authorize?client_id=${clientId}&redirect_uri=${import.meta.env.VITE_APP_BASE_URL}`
+})
 </script>
 
 <style lang="scss" scoped>

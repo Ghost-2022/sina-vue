@@ -71,7 +71,7 @@
 
 <script setup>
 import { useRoute } from 'vue-router'
-import { getCurrentInstance, onMounted, reactive, ref } from 'vue'
+import { getCurrentInstance, onMounted, ref } from 'vue'
 import bus from '@/utils/bus'
 import echarts from 'echarts'
 let { proxy } = getCurrentInstance()
