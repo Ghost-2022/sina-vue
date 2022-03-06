@@ -23,11 +23,17 @@ let getPoints = () => {
   //   console.log(resData)
   //
   // })
-  return [[116.186376,39.997011], [116.775089,40.040774], [116.450262,43.492151], [124.96821,43.465356], [124.96821,43.465356]]
+  return [
+    [116.186376, 39.997011],
+    [116.775089, 40.040774],
+    [116.450262, 43.492151],
+    [124.96821, 43.465356],
+    [124.96821, 43.465356]
+  ]
 }
 let baiduMap = () => {
   const map = new window.BMapGL.Map('mapContainer')
-  map.centerAndZoom(new window.BMapGL.Point(116.799811,32.228141), 5)
+  map.centerAndZoom(new window.BMapGL.Point(116.799811, 32.228141), 5)
   map.enableScrollWheelZoom(true)
   let points = getPoints()
   console.log(points)

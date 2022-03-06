@@ -2,17 +2,17 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import Layout from '@/layout'
 
 export const constantRoutes = [
-  {
-    path: '/redirect',
-    component: Layout,
-    hidden: true,
-    children: [
-      {
-        path: '/redirect/:path(.*)',
-        component: () => import('@/views/redirect/index')
-      }
-    ]
-  },
+  // {
+  //   path: '/redirect',
+  //   component: Layout,
+  //   hidden: true,
+  //   children: [
+  //     {
+  //       path: '/redirect/:path(.*)',
+  //       component: () => import('@/views/redirect/index')
+  //     }
+  //   ]
+  // },
   {
     path: '/login',
     component: () => import('@/views/login/Login.vue'),
@@ -44,6 +44,7 @@ export const constantRoutes = [
   {
     path: '/detail',
     component: Layout,
+    hidden: true,
     children: [
       {
         path: '',
@@ -56,12 +57,25 @@ export const constantRoutes = [
   {
     path: '/map',
     component: Layout,
+    hidden: true,
     children: [
       {
         path: '',
         component: () => import('@/views/map/index'),
         name: 'Map',
         meta: { title: '地图展示', icon: 'bug' }
+      }
+    ]
+  },
+  {
+    path: '/label',
+    component: Layout,
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/label/index'),
+        name: 'Label',
+        meta: { title: '规则列表', icon: 'form' }
       }
     ]
   }
