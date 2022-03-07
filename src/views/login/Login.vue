@@ -91,7 +91,6 @@ let loading = ref(false)
 let tipMessage = ref('')
 const store = useStore()
 let handleLogin = () => {
-  let refloginForm = ''
   proxy.$refs['refloginForm'].validate((valid) => {
     if (valid) {
       loginReq()

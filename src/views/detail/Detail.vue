@@ -19,6 +19,7 @@
       </el-form-item>
       <el-button plain @click="exportArticle('article')">导出文章</el-button>
       <el-button plain @click="exportArticle('comment')">导出评论</el-button>
+      <el-button plain @click="redirectMap">查看地图</el-button>
     </el-form>
   </div>
   <el-row style="min-width: 1100px; text-align: center" justify="center">
@@ -504,6 +505,10 @@ const initBarS = () => {
     ]
   }
   echartsBarS.value.setOption(option)
+}
+
+const redirectMap = () => {
+  proxy.$router.push({ path: '/map', query: { id: id } })
 }
 
 let exportArticle = (fileType) => {

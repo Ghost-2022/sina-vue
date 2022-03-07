@@ -7,11 +7,11 @@
     :before-close="closeFormModal"
   >
     <el-form ref="refForm" label-width="150px" :inline="false" :model="subForm" :rules="formRulesMixin" class="pr-5">
-      <el-form-item label="标签名称" prop="sn" :rules="formRulesMixin.isNotNull" label-position="left">
-        <el-input v-model="subForm.labelName" class="widthPx-300" placeholder="标签名称" />
+      <el-form-item label="标签名称" prop="label" :rules="formRulesMixin.isNotNull" label-position="left">
+        <el-input v-model="subForm.label" class="widthPx-300" placeholder="标签名称" />
       </el-form-item>
-      <el-form-item label="标签规则" prop="hardVersion" :rules="formRulesMixin.isNotNull" label-position="left">
-        <el-input v-model="subForm.rules" class="widthPx-300" placeholder="标签规则: 使用 | (英文分隔)" />
+      <el-form-item label="标签规则" prop="rule" :rules="formRulesMixin.isNotNull" label-position="left">
+        <el-input v-model="subForm.rule" class="widthPx-300" placeholder="标签规则: 使用 | (英文分隔)" />
       </el-form-item>
     </el-form>
     <template #footer>
@@ -36,14 +36,15 @@ const emit = defineEmits(['selectPageReq', 'hideComp'])
 //新增
 const refForm = ref(null)
 let subForm = reactive({
-  id: '',
-  labelName: '',
-  rules: ''
+  labelId: '',
+  label: '',
+  rule: ''
 })
 let confirmBtnClick = () => {
   refForm.value.validate((valid) => {
+    console.log(subForm, subForm.labelId)
     if (valid) {
-      if (subForm.id) {
+      if (subForm.labelId) {
         updateReq()
       } else {
         insertReq()
@@ -54,16 +55,17 @@ let confirmBtnClick = () => {
   })
 }
 const insertReq = () => {
-  const data = JSON.parse(JSON.stringify(subForm))
-  delete data.id
+  const data = subForm
+  delete data.labelId
   proxy
     .$axiosReq({
-      url: '/integration-front/vci/insert',
+      url: '/api/v1/label-rule',
       data: data,
-      method: 'post',
-      bfLoading: true
+      method: 'post'
+      // bfLoading: true
     })
     .then((res) => {
+      console.log(res)
       ElMessage({ message: '保存成功', type: 'success' })
       emit('selectPageReq')
       emit('hideComp')
@@ -82,10 +84,10 @@ const reshowData = (row) => {
 let updateReq = () => {
   proxy
     .$axiosReq({
-      url: '/integration-front/vci/updateById',
+      url: '/api/v1/label-rule',
       data: subForm,
-      method: 'put',
-      bfLoading: true
+      method: 'post'
+      // bfLoading: true
     })
     .then(() => {
       ElMessage({ message: '更新成功', type: 'success' })
@@ -99,7 +101,7 @@ const dialogTitle = ref(null),
   dialogVisible = ref(null)
 let showModal = (isEdit, detailData) => {
   if (isEdit) {
-    dialogTitle.value = `编辑【${detailData.labelName}】`
+    dialogTitle.value = `编辑【${detailData.label}】`
     dialogVisible.value = true
     reshowData(detailData)
   } else {

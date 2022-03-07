@@ -7,11 +7,11 @@
       <!--条件搜索-->
       <el-form ref="refsearchForm" :inline="true" class="demo-searchForm ml-3">
         <el-form-item label-width="0px" label="" prop="labelName" label-position="left">
-          <el-input v-model="searchForm.labelName" class="widthPx-150" placeholder="标签名称" />
+          <el-input v-model="searchForm.label" class="widthPx-150" placeholder="标签名称" />
         </el-form-item>
       </el-form>
       <!--查询按钮-->
-      <el-button type="primary" @click="searchBtnClick">搜索</el-button>
+      <el-button type="primary" @click="selectPageReq()">搜索</el-button>
     </div>
     <!--表格和分页-->
     <el-table
@@ -23,8 +23,8 @@
       @selection-change="handleSelectionChange"
     >
       <el-table-column align="center" type="selection" width="50" />
-      <el-table-column align="center" prop="labelName" label="标签名称" min-width="100" />
-      <el-table-column align="center" prop="rules" label="标签规则" min-width="100" />
+      <el-table-column align="center" prop="label" label="标签名称" min-width="100" />
+      <el-table-column align="center" prop="rule" label="标签规则" min-width="100" />
       <!--点击操作-->
       <el-table-column align="center" label="操作" min-width="120">
         <template #default="{ row }">
@@ -63,14 +63,14 @@ const handleSelectionChange = (val) => {
 const refVciForm = ref(null)
 let VcitableData = ref([])
 let searchForm = reactive({
-  labelName: ''
+  label: ''
 })
 onMounted(() => {
   selectPageReq()
 })
 const getSearchData = () => {
   const data = Object.assign(searchForm, {
-    pageNum: pageNum.value,
+    page: pageNum.value,
     pageSize: pageSize.value
   })
   Object.keys(data).forEach((fItem) => {
@@ -81,14 +81,14 @@ const getSearchData = () => {
 // const { totalPage, startEndArr } = useCommon()
 let selectPageReq = () => {
   let reqConfig = {
-    url: '/integration-front/vci/selectPage',
+    url: '/api/v1/label-rule',
     method: 'get',
     data: getSearchData(),
     isParams: true,
-    isAlertErrorMsg: false
+    isAlertErrorMsg: true
   }
   proxy.$axiosReq(reqConfig).then((resData) => {
-    VcitableData.value = resData.data?.records
+    VcitableData.value = resData.data?.list
     proxy.pageTotalMixin = resData.data?.total
   })
 }
@@ -115,18 +115,17 @@ const hideComp = () => {
 // let { elMessage, elConfirm } = useElement()
 let deleteByIdReq = (id) => {
   return proxy.$axiosReq({
-    url: '/integration-front/vci/deleteById',
-    data: { id: id },
-    isParams: true,
-    method: 'delete',
-    bfLoading: true
+    url: '/api/v1/label-rule',
+    data: { labelIds: id.toString() },
+    method: 'delete'
+    // bfLoading: true
   })
 }
 let tableDelClick = async (row) => {
-  await ElMessageBox.confirm('确定', `您确定要删除【${row.labelName}】吗？`)
-  deleteByIdReq(row.id).then(() => {
+  await ElMessageBox.confirm('确定', `您确定要删除【${row.label}】吗？`)
+  deleteByIdReq(row.labelId).then(() => {
     selectPageReq()
-    ElMessage({ message: `【${row.labelName}】删除成功`, type: 'success' })
+    ElMessage({ message: `【${row.label}】删除成功`, type: 'success' })
   })
 }
 //批量删除
@@ -134,8 +133,8 @@ const multiDelBtnClick = async () => {
   let rowDeleteIdArr = []
   let deleteNameTitle = ''
   rowDeleteIdArr = multipleSelection.value.map((mItem) => {
-    deleteNameTitle = deleteNameTitle + mItem.sn + ','
-    return mItem.id
+    deleteNameTitle = deleteNameTitle + mItem.label + ','
+    return mItem.labelId
   })
   if (rowDeleteIdArr.length === 0) {
     ElMessage({ message: `表格选项不能为空`, type: 'success' })
@@ -143,13 +142,11 @@ const multiDelBtnClick = async () => {
   }
   let stringLength = deleteNameTitle.length - 1
   await ElMessageBox.confirm('删除', `您确定要删除${deleteNameTitle.slice(0, stringLength)}吗`)
-  const data = rowDeleteIdArr
   proxy
     .$axiosReq({
-      url: `/integration-front/vci/deleteBatchIds`,
-      data,
-      method: 'DELETE',
-      bfLoading: true
+      url: `/api/v1/label-rule`,
+      data: { labelIds: rowDeleteIdArr.join() },
+      method: 'DELETE'
     })
     .then(() => {
       ElMessage({ message: `删除成功`, type: 'success' })
