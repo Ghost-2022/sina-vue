@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-import { getCurrentInstance, onMounted } from 'vue'
+import { getCurrentInstance, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 const route = useRoute()
 const { id } = route.query
@@ -19,25 +19,20 @@ let getPoints = () => {
     isParams: true,
     isAlertErrorMsg: true
   }
-  // await proxy.$axiosReq(reqConfig).then((resData) => {
-  //   console.log(resData)
-  //
-  // })
-  return [[116.186376,39.997011], [116.775089,40.040774], [116.450262,43.492151], [124.96821,43.465356], [124.96821,43.465356]]
+  proxy.$axiosReq(reqConfig).then((resData) => {
+    baiduMap(resData.data)
+  })
 }
-let baiduMap = () => {
+let baiduMap = (points) => {
   const map = new window.BMapGL.Map('mapContainer')
-  map.centerAndZoom(new window.BMapGL.Point(116.799811,32.228141), 5)
+  map.centerAndZoom(new window.BMapGL.Point(108.813659, 34.347491), 6)
   map.enableScrollWheelZoom(true)
-  let points = getPoints()
-  console.log(points)
   for (let i = 0; i < points.length; i++) {
-    console.log(i[0], i[1])
     map.addOverlay(new window.BMapGL.Marker(new window.BMapGL.Point(points[i][0], points[i][1])))
   }
 }
 onMounted(() => {
-  baiduMap()
+  getPoints()
 })
 </script>
 

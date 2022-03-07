@@ -144,8 +144,8 @@ let showPwd = () => {
 }
 onBeforeMount (() =>{
   let code = /=(\w+)\#/.exec(window.location.href)
-  if (code === null)
-    window.location.href = `https://api.weibo.com/oauth2/authorize?client_id=${clientId}&redirect_uri=${import.meta.env.VITE_APP_BASE_URL}`
+  // if (code === null)
+  //   window.location.href = `https://api.weibo.com/oauth2/authorize?client_id=${clientId}&redirect_uri=${import.meta.env.VITE_APP_BASE_URL}`
 })
 </script>
 
