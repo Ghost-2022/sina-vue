@@ -42,14 +42,6 @@
     </el-form>
   </div>
 </template>
-
-<script>
-/*可以设置默认的名字*/
-export default {
-  name: 'Login'
-}
-</script>
-
 <script setup>
 import { reactive, getCurrentInstance, watch, ref, onBeforeMount } from 'vue'
 import settings from '@/settings'
@@ -142,13 +134,14 @@ let showPwd = () => {
     refPassword.value.focus()
   })
 }
-onBeforeMount (() =>{
+onBeforeMount(() => {
   let code = /=(\w+)\#/.exec(window.location.href)
   // if (code === null)
-  //   window.location.href = `https://api.weibo.com/oauth2/authorize?client_id=${clientId}&redirect_uri=${import.meta.env.VITE_APP_BASE_URL}`
+  //   window.location.href = `https://api.weibo.com/oauth2/authorize?client_id=${clientId}&redirect_uri=${
+  //     import.meta.env.VITE_APP_BASE_URL
+  //   }
 })
 </script>
-
 <style lang="scss" scoped>
 $bg: #2d3a4b;
 $dark_gray: #889aa4;

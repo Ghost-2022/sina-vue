@@ -1,5 +1,6 @@
 import router from '@/router'
 import settings from './settings'
+import store from './store'
 import { getToken } from '@/utils/auth'
 import NProgress from 'nprogress'
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
@@ -23,6 +24,7 @@ router.beforeEach(async (to, from, next) => {
       // if is logged in, redirect to the home page
       next({ path: '/' })
     } else {
+      store.commit('permission/M_routes', [])
       next()
     }
   } else {
