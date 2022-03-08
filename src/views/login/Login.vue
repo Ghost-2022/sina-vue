@@ -102,7 +102,7 @@ let handleLogin = () => {
 }
 let loginReq = () => {
   loading.value = true
-  formInline['authCode'] = code
+  formInline['authCode'] = code[1]
   store
     .dispatch('user/login', formInline)
     .then((resp) => {
@@ -140,8 +140,9 @@ let showPwd = () => {
 }
 const redirectSinaLogin = () => {
   if (code === null)
-      window.location.href = `https://api.weibo.com/oauth2/authorize?client_id=${clientId}&redirect_uri=${
-        import.meta.env.VITE_APP_BASE_URL}`
+    window.location.href = `https://api.weibo.com/oauth2/authorize?client_id=${clientId}&redirect_uri=${
+      import.meta.env.VITE_APP_BASE_URL
+    }`
 }
 
 onBeforeMount(() => {

@@ -140,8 +140,11 @@ const multiDelBtnClick = async () => {
     ElMessage({ message: `表格选项不能为空`, type: 'success' })
     return
   }
-  let stringLength = deleteNameTitle.length - 1
-  await ElMessageBox.confirm('删除', `您确定要删除${deleteNameTitle.slice(0, stringLength)}吗`)
+  await ElMessageBox.confirm('删除', `您确定要删除${deleteNameTitle.slice(0, 5)}等吗`, 'Warning', {
+    confirmButtonText: 'OK',
+    cancelButtonText: 'Cancel',
+    type: 'warning'
+  })
   proxy
     .$axiosReq({
       url: `/api/v1/label-rule`,
