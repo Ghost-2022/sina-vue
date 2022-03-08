@@ -131,19 +131,19 @@ let tableDelClick = async (row) => {
 //批量删除
 const multiDelBtnClick = async () => {
   let rowDeleteIdArr = []
-  let deleteNameTitle = ''
+  let deleteNameTitle = []
   rowDeleteIdArr = multipleSelection.value.map((mItem) => {
-    deleteNameTitle = deleteNameTitle + mItem.label + ','
+    deleteNameTitle.push(mItem.label)
     return mItem.labelId
   })
   if (rowDeleteIdArr.length === 0) {
     ElMessage({ message: `表格选项不能为空`, type: 'success' })
     return
   }
-  await ElMessageBox.confirm('删除', `您确定要删除${deleteNameTitle.slice(0, 5)}等吗`, 'Warning', {
-    confirmButtonText: 'OK',
-    cancelButtonText: 'Cancel',
-    type: 'warning'
+  await ElMessageBox.confirm(`您确定要删除${deleteNameTitle.slice(0, 5)}等吗`, '删除', {
+    showCancelButton: true,
+    confirmButtonText: '确定',
+    cancelButtonText: '取消'
   })
   proxy
     .$axiosReq({

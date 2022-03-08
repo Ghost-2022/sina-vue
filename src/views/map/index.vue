@@ -24,11 +24,11 @@ let getPoints = () => {
   })
 }
 let baiduMap = (points) => {
-  const map = new window.BMapGL.Map('mapContainer')
-  map.centerAndZoom(new window.BMapGL.Point(108.813659, 34.347491), 6)
+  const map = new BMapGL.Map('mapContainer')
+  map.centerAndZoom(new BMapGL.Point(108.813659, 34.347491), 6)
   map.enableScrollWheelZoom(true)
   for (let i = 0; i < points.length; i++) {
-    map.addOverlay(new window.BMapGL.Marker(new window.BMapGL.Point(points[i][0], points[i][1])))
+    map.addOverlay(new BMapGL.Marker(new BMapGL.Point(points[i][0], points[i][1])))
   }
 }
 onMounted(() => {
