@@ -47,6 +47,7 @@
     <el-table-column fixed="right" align="center" label="操作">
       <template #default="{ row }">
         <el-button type="text" size="small" @click="detailClick(row)">详情</el-button>
+        <el-button type="text" size="small" @click="deleteRecord(row)">删除</el-button>
       </template>
     </el-table-column>
   </el-table>
@@ -114,7 +115,7 @@ let selectPageReq = () => {
 }
 
 import tablePageHook from '@/hooks/tablePageHook'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { checkSinaLoginStatus } from '@/api/user'
 let { pageNum, pageSize, handleCurrentChange, handleSizeChange } = tablePageHook(selectPageReq)
 const dateTimePacking = (timeArr) => {
@@ -219,6 +220,36 @@ const searchBtnClick = () => {
       }
     })
   }
+}
+
+const deleteRecord = (row) => {
+  const data = { searchId: row.id }
+  let reqConfig = {
+    url: '/api/v1/sina-search',
+    method: 'delete',
+    data,
+    isParams: true,
+    isAlertErrorMsg: false
+  }
+  ElMessageBox.confirm('是否删除这条记录?', '删除', {
+    showCancelButton: true,
+    confirmButtonText: '确定',
+    cancelButtonText: '取消'
+  })
+    .then(() => {
+      proxy.$axiosReq(reqConfig).then((resData) => {
+        let { error_msg, is_succ } = resData
+        if (is_succ) {
+          ElMessage.success(error_msg)
+          selectPageReq()
+        } else {
+          ElMessage.success(error_msg)
+        }
+      })
+    })
+    .catch((error) => {
+      console.error(error)
+    })
 }
 
 let detailClick = (row) => {

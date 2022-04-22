@@ -54,19 +54,19 @@ export const constantRoutes = [
       }
     ]
   },
-  {
-    path: '/map',
-    component: Layout,
-    hidden: true,
-    children: [
-      {
-        path: '',
-        component: () => import('@/views/map/index'),
-        name: 'Map',
-        meta: { title: '地图展示', icon: 'bug' }
-      }
-    ]
-  },
+  // {
+  //   path: '/map',
+  //   component: Layout,
+  //   hidden: true,
+  //   children: [
+  //     {
+  //       path: '',
+  //       component: () => import('@/views/map/index'),
+  //       name: 'Map',
+  //       meta: { title: '地图展示', icon: 'bug' }
+  //     }
+  //   ]
+  // },
   {
     path: '/label',
     component: Layout,

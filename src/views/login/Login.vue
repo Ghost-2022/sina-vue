@@ -50,8 +50,6 @@ import { setToken } from '@/utils/auth'
 import { useStore } from 'vuex'
 import { ElMessage } from 'element-plus'
 let { proxy } = getCurrentInstance()
-const clientId = 2310257607
-let code = /=(\w+)\#/.exec(window.location.href)
 //form
 let formInline = reactive({
   username: '',
@@ -102,18 +100,21 @@ let handleLogin = () => {
 }
 let loginReq = () => {
   loading.value = true
-  formInline['authCode'] = code[1]
   store
     .dispatch('user/login', formInline)
     .then((resp) => {
       const { token, nickName } = resp
-      if (nickName === '')
-        window.location.href = `https://api.weibo.com/oauth2/authorize?client_id=${clientId}&redirect_uri=${
-          import.meta.env.VITE_APP_BASE_URL}`
-      setToken(token)
-      localStorage.setItem('user', nickName)
-      ElMessage({ message: '登录成功', type: 'success' })
-      proxy.$router.push({ path: state.redirect || '/', query: state.otherQuery })
+      if (token) {
+        setToken(token)
+        localStorage.setItem('user', nickName)
+        ElMessage({ message: '登录成功', type: 'success' })
+        proxy.$router.push({
+          path: state.redirect || '/',
+          query: state.otherQuery
+        })
+      } else {
+        ElMessage({ message: '登录失败', type: 'error' })
+      }
     })
     .catch((res) => {
       tipMessage.value = res.msg
@@ -138,16 +139,6 @@ let showPwd = () => {
     refPassword.value.focus()
   })
 }
-const redirectSinaLogin = () => {
-  if (code === null)
-    window.location.href = `https://api.weibo.com/oauth2/authorize?client_id=${clientId}&redirect_uri=${
-      import.meta.env.VITE_APP_BASE_URL
-    }`
-}
-
-onBeforeMount(() => {
-  redirectSinaLogin()
-})
 </script>
 <style lang="scss" scoped>
 $bg: #2d3a4b;

@@ -19,7 +19,8 @@
       </el-form-item>
       <el-button plain @click="exportArticle('article')">导出文章</el-button>
       <el-button plain @click="exportArticle('comment')">导出评论</el-button>
-      <el-button plain @click="redirectMap">查看地图</el-button>
+      <el-button plain @click="exportArticle('cate')">分类导出</el-button>
+      <!--      <el-button plain @click="redirectMap">查看地图</el-button>-->
     </el-form>
   </div>
   <el-row style="min-width: 1100px; text-align: center" justify="center">
@@ -521,8 +522,10 @@ let exportArticle = (fileType) => {
   let exportUrl = ''
   if (fileType === 'article') {
     exportUrl = '/api/v1/export-article'
-  } else {
+  } else if (fileType === 'comment') {
     exportUrl = '/api/v1/export-comment'
+  } else {
+    exportUrl = '/api/v1/export-article-cate'
   }
 
   let reqConfig = {
@@ -530,19 +533,22 @@ let exportArticle = (fileType) => {
     method: 'get',
     data,
     isParams: true,
-    isAlertErrorMsg: false
+    isAlertErrorMsg: false,
+    isDownLoadFile: true,
+    timeout: 300000
   }
-  proxy.$axiosReq(reqConfig).then((resData) => {
-    const blob = new Blob([`\ufeff${resData}`], { type: 'charset=utf-8' })
-    const fileName = id + '-' + fileType + '.csv'
-    const down = document.createElement('a')
-    down.download = fileName
-    down.style.display = 'none' //隐藏,没必要展示出来
-    down.href = URL.createObjectURL(blob)
-    document.body.appendChild(down)
-    down.click()
-    URL.revokeObjectURL(down.href) // 释放URL 对象
-    document.body.removeChild(down) //下载完成移除
+  proxy.$axiosReq(reqConfig).then((res) => {
+    const blob = new Blob([res.data], {
+      type: 'application/vnd.ms-excel;charset=UTF-8'
+    })
+    const link = document.createElement('a')
+    link.style.display = 'none'
+    link.href = URL.createObjectURL(blob)
+    link.download = `${id}-${fileType}`
+    document.body.appendChild(link)
+    link.click()
+    URL.revokeObjectURL(link.href)
+    document.body.removeChild(link)
   })
 }
 onMounted(() => {

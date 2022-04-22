@@ -52,7 +52,7 @@ service.interceptors.response.use(
     }
     // 如果是下载文件直接返回
     if (requestData.isDownLoadFile) {
-      return res.data
+      return { data: res.data } // 格式化输出
     }
     const { is_succ, error_msg } = res.data
     if (is_succ) {
