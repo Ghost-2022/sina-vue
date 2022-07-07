@@ -6,11 +6,12 @@
 import { getCurrentInstance, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 const route = useRoute()
-const { id } = route.query
+const { id, mapType } = route.query
 let { proxy } = getCurrentInstance()
 let getPoints = () => {
   const data = {
-    searchId: id
+    searchId: id,
+    type: mapType
   }
   let reqConfig = {
     url: '/api/v1/get-points',
